@@ -225,6 +225,47 @@ class Ripple Model {
       map_reduce search(bucket_name, query_string) map("Riak.mapValuesJson", <['keep => true]>) run()
     }
 
+    def search: query_string {
+      """
+      @query_string Lucene style query string for searching the underslying JSON structure of Model instances via Riak Search.
+      @return @Array@ of model instances of @self that match @query_string. Ignores relationship data.
+      """
+
+      res = Ripple client search(bucket_name, query_string)["response"]
+      res["docs"] map: |d| {
+        key = d["id"]
+        fields = d["fields"]
+        model_class = self
+
+        try {
+          model_class = fields delete: "_type" . constantize()
+        } catch {}
+
+        robj = Riak RObject new(Ripple client bucket(bucket_name), key)
+
+        model_class new tap: @{
+          do: $ fields to_block
+          key=(key)
+          set_slot: 'new value: false
+          set_slot: 'robject value: robj
+          changed_attributes() clear()
+        }
+      }
+    }
+
+    def search_with_relationships: query_string {
+      """
+      @query_string Lucene style query string for searching the underslying JSON structure of Model instances via Riak Search.
+      @return @Array@ of model instances of @self that match @query_string. Includes relationship data.
+      """
+
+      res = Ripple client search(bucket_name, query_string)["response"]
+      res["docs"] map: |d| {
+        key = d["id"]
+        instantiate(bucket get(key))
+      }
+    }
+
     def new {
       """
       @return New @Ripple::Model@ instance for this model class.
