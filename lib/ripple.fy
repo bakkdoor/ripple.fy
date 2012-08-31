@@ -45,7 +45,7 @@ class Ripple DocumentExtensions {
     }
   }
 
-  def timestamps! {
+  def enable_timestamps! {
     timestamps!()
     define_forwarder_for: 'created_at
     define_forwarder_for: 'updated_at
@@ -64,7 +64,7 @@ class Ripple DocumentExtensions {
       property: name type: type with: { default: default presence: true }
     }
 
-    timestamps!
+    enable_timestamps!
   }
 
   def set_default_properties: instance {
