@@ -219,7 +219,7 @@ class Ripple Model {
 
     def search_map_reduce: query_string {
       """
-      @query_string Lucene style query string for searching the underlying JSON structure of Model instances.
+      @query_string Lucene style query string for searching the underlying JSON structure of Model instances via Riak MapReduce.
       """
 
       map_reduce search(bucket_name, query_string) map("Riak.mapValuesJson", <['keep => true]>) run()
