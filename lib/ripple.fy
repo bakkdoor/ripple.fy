@@ -359,8 +359,11 @@ class Ripple Model {
             validates: 'name with: @{ blank? not } # no empty names
       """
 
-      prop_block = |model| { block call: [model receive_message: property] }
-      validate(property, &prop_block)
+      validates_each(property to_a) |model attr value| {
+        unless: (block call: [model receive_message: property]) do: {
+          model errors() add(attr)
+        }
+      }
     }
   }
 
