@@ -313,10 +313,23 @@ class Ripple Model {
       @return @true if deleted, @false otherwise.
       """
 
-      find!: key . delete
+      if: (find: key) then: @{ delete } else: { false }
     }
 
     alias_method: 'delete: for: 'destroy:
+
+    def destroy!: key {
+      """
+      @key @String@ that is the key of the model instance.
+      @return @true if deleted, @false otherwise.
+
+      Raises a @Ripple::ModelNotFoundError@, if @key is not found.
+      """
+
+      find!: key . delete
+    }
+
+    alias_method: 'delete!: for: 'destroy!:
 
     def key: @key_block
 
